@@ -1,0 +1,156 @@
+# Netlify Build Configuration
+[build]
+  # Directory to build the project
+  publish = "dist"
+  
+  # Build command
+  command = "npm run build"
+  
+  # Directory with the source code (optional)
+  base = "."
+
+# Netlify Functions Configuration
+[functions]
+  directory = "netlify/functions"
+
+# Build Environment Variables
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+
+# Headers for security and performance
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Security headers
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
+    
+    # PWA headers
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Special headers for service worker
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    Service-Worker-Allowed = "/"
+
+# Headers for manifest
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+    Cache-Control = "public, max-age=31536000"
+
+# Headers for audio files
+[[headers]]
+  for = "/meditation-sounds/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Type = "audio/mpeg"
+
+# Headers for API routes (if using Netlify Functions)
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+
+# Redirects for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  conditions = {Role = ["visitor"]}
+
+# API redirects (if using external API)
+[[redirects]]
+  from = "/api/*"
+  to = "https://api.chrysalis.app/:splat"
+  status = 200
+  force = true
+
+# Socket.io redirects
+[[redirects]]
+  from = "/socket.io/*"
+  to = "https://socket.chrysalis.app/:splat"
+  status = 200
+  force = true
+
+# Progressive Web App caching
+[[headers]]
+  for = "/icons/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Edge Functions (if needed)
+[[edge_functions]]
+  function = "meditation-session-tracker"
+  path = "/api/meditation/session/*"
+
+# Plugins
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+  
+  [plugins.inputs]
+    output_path = "lighthouse"
+    audit_runs = 3
+
+[[plugins]]
+  package = "netlify-plugin-compress"
+
+[[plugins]]
+  package = "netlify-plugin-minify-html"
+  
+  [plugins.inputs]
+    contexts = ["production"]
+
+# Build processing
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
+[build.processing.html]
+  pretty_urls = true
+
+[build.processing.images]
+  compress = true
+
+# Dev server settings
+[dev]
+  command = "npm run dev"
+  port = 8888
+  targetPort = 5173
+  publish = "dist"
+  autoLaunch = false
+
+# Context-specific settings
+[context.production]
+  [context.production.environment]
+    NODE_ENV = "production"
+    VITE_API_URL = "https://api.chrysalis.app"
+    VITE_SOCKET_URL = "https://socket.chrysalis.app"
+
+[context.deploy-preview]
+  [context.deploy-preview.environment]
+    NODE_ENV = "staging"
+    VITE_API_URL = "https://api-staging.chrysalis.app"
+    VITE_SOCKET_URL = "https://socket-staging.chrysalis.app"
+
+[context.branch-deploy]
+  [context.branch-deploy.environment]
+    NODE_ENV = "development"
+    VITE_API_URL = "http://localhost:3001"
+    VITE_SOCKET_URL = "http://localhost:3002"

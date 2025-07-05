@@ -1,0 +1,47 @@
+version: "1"
+services:
+  - type: web
+    name: chrysalis-backend
+    env: node
+    repo: https://github.com/yourusername/kingdomshouldvecome
+    buildCommand: npm run build:prod
+    startCommand: npm start
+    rootDir: server
+    plan: free
+    region: oregon
+    branch: main
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "5000"
+      - key: DATABASE_URL
+        value: your_database_url_here
+      - key: JWT_SECRET
+        value: your_jwt_secret_here
+      - key: MAILGUN_API_KEY
+        value: your_mailgun_api_key_here
+      - key: MAILGUN_DOMAIN
+        value: your_mailgun_domain_here
+      - key: CLOUDINARY_URL
+        value: cloudinary://api_key:api_secret@cloud_name
+      - key: CLOUDINARY_CLOUD_NAME
+        value: your_cloudinary_cloud_name
+      - key: CLOUDINARY_API_KEY
+        value: "your_cloudinary_api_key"
+      - key: CLOUDINARY_API_SECRET
+        value: your_cloudinary_api_secret
+      - key: FIREBASE_PROJECT_ID
+        value: your_firebase_project_id
+      - key: FIREBASE_API_KEY
+        value: your_firebase_api_key
+      - key: FIREBASE_MESSAGING_SENDER_ID
+        value: "your_firebase_sender_id"
+      - key: FIREBASE_APP_ID
+        value: your_firebase_app_id
+      - key: GA_MEASUREMENT_ID
+        value: your_ga_measurement_id
+      - key: GA_STREAM_ID
+        value: "your_ga_stream_id"
+    healthCheckPath: /health
+    autoDeploy: true

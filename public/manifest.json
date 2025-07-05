@@ -1,0 +1,224 @@
+{
+  "name": "Chrysalis - Meditation & Mindfulness",
+  "short_name": "Chrysalis",
+  "description": "Master your mind through meditation - inspired by the kingdom within",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#6B8E23",
+  "background_color": "#F5F5DC",
+  "categories": ["health", "lifestyle", "wellness"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Home screen showing meditation options"
+    },
+    {
+      "src": "/screenshots/meditation-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Active meditation session with timer"
+    },
+    {
+      "src": "/screenshots/social-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Social feed with community posts"
+    },
+    {
+      "src": "/screenshots/leaderboard-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Leaderboard and achievements"
+    },
+    {
+      "src": "/screenshots/home-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Desktop home screen with meditation library"
+    },
+    {
+      "src": "/screenshots/meditation-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Desktop meditation session interface"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start Quick Meditation",
+      "short_name": "Quick Meditate",
+      "description": "Start a 5-minute guided meditation",
+      "url": "/meditation/quick",
+      "icons": [
+        {
+          "src": "/icons/shortcut-meditate.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "View Progress",
+      "short_name": "Progress",
+      "description": "Check your meditation progress and stats",
+      "url": "/progress",
+      "icons": [
+        {
+          "src": "/icons/shortcut-progress.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Social Feed",
+      "short_name": "Community",
+      "description": "Connect with the meditation community",
+      "url": "/social",
+      "icons": [
+        {
+          "src": "/icons/shortcut-social.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Scan QR Code",
+      "short_name": "QR Scan",
+      "description": "Scan meditation QR codes for challenges",
+      "url": "/qr-scanner",
+      "icons": [
+        {
+          "src": "/icons/shortcut-qr.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "meditation-audio",
+          "accept": ["audio/*"]
+        },
+        {
+          "name": "meditation-image",
+          "accept": ["image/*"]
+        }
+      ]
+    }
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "chrysalis",
+      "url": "/handle/%s"
+    }
+  ],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "file_handlers": [
+    {
+      "action": "/import-meditation",
+      "accept": {
+        "audio/*": [".mp3", ".wav", ".ogg", ".m4a"],
+        "application/json": [".json"]
+      }
+    }
+  ],
+  "permissions": [
+    "notifications",
+    "background-sync",
+    "camera",
+    "microphone",
+    "geolocation"
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=app.chrysalis.meditation",
+      "id": "app.chrysalis.meditation"
+    },
+    {
+      "platform": "itunes",
+      "url": "https://apps.apple.com/app/chrysalis-meditation/id123456789",
+      "id": "123456789"
+    }
+  ]
+}
