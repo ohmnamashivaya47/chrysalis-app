@@ -11,7 +11,7 @@
 1. Click **"New +"** → **"Web Service"**
 2. **Connect Repository**:
    - Select "Connect GitHub"
-   - Choose `kingdomshouldvecome` repository
+   - Choose `chrysalis-app` repository
 3. **Configure Service**:
    - **Name**: `chrysalis-backend`
    - **Root Directory**: `server`
