@@ -1,6 +1,6 @@
 /**
- * Mock Auth Service - Frontend Only
- * Provides local storage authentication without backend
+ * Authentication Service
+ * Handles user authentication, registration, and session management
  */
 
 import type {
@@ -10,96 +10,47 @@ import type {
   ApiResponse,
 } from "../types";
 
-class MockAuthService {
-  private users: Map<string, User> = new Map();
-  private currentUserId: string | null = null;
-
-  constructor() {
-    // Initialize with some demo users
-    this.initializeDemoUsers();
-    // Check if user is already logged in
-    const savedUserId = localStorage.getItem("currentUserId");
-    if (savedUserId && this.users.has(savedUserId)) {
-      this.currentUserId = savedUserId;
-    }
-  }
-
-  private initializeDemoUsers() {
-    const demoUsers: User[] = [
-      {
-        id: "demo1",
-        email: "demo@chrysalis.app",
-        username: "demo_user",
-        bio: "Demo meditation practitioner",
-        avatarUrl: undefined,
-        createdAt: new Date(),
-        isPublic: true,
-        totalMeditationMinutes: 120,
-        emailVerified: true,
-        lastActive: new Date(),
-        qrCode: "demo1_qr_code"
-      }
-    ];
-
-    demoUsers.forEach(user => {
-      this.users.set(user.id, user);
-    });
-  }
+class AuthService {
+  private baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
   async login(
     credentials: LoginCredentials,
   ): Promise<ApiResponse<{ user: User; token: string }>> {
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const response = await fetch(`${this.baseUrl}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(credentials),
+      });
 
-      // Check for demo login
-      if (credentials.email === "demo@chrysalis.app" && credentials.password === "demo") {
-        const user = this.users.get("demo1")!;
-        this.currentUserId = user.id;
-        localStorage.setItem("currentUserId", user.id);
-        localStorage.setItem("auth_token", "demo_token_" + user.id);
+      const data = await response.json();
 
+      if (!response.ok) {
         return {
-          success: true,
-          data: {
-            user,
-            token: "demo_token_" + user.id,
-          },
+          success: false,
+          error: data.message || "Login failed",
         };
       }
 
-      // For any other credentials, create a new user
-      const newUser: User = {
-        id: "user_" + Date.now(),
-        email: credentials.email,
-        username: credentials.email.split("@")[0],
-        bio: undefined,
-        avatarUrl: undefined,
-        createdAt: new Date(),
-        isPublic: true,
-        totalMeditationMinutes: 0,
-        emailVerified: true,
-        lastActive: new Date(),
-        qrCode: "qr_" + Date.now()
-      };
-
-      this.users.set(newUser.id, newUser);
-      this.currentUserId = newUser.id;
-      localStorage.setItem("currentUserId", newUser.id);
-      localStorage.setItem("auth_token", "token_" + newUser.id);
+      // Store JWT token
+      if (data.token) {
+        localStorage.setItem("auth_token", data.token);
+      }
 
       return {
         success: true,
         data: {
-          user: newUser,
-          token: "token_" + newUser.id,
+          user: data.user,
+          token: data.token,
         },
       };
-    } catch {
+    } catch (error) {
       return {
         success: false,
-        error: "Login failed",
+        error: error instanceof Error ? error.message : "Network error",
       };
     }
   }
@@ -108,152 +59,421 @@ class MockAuthService {
     userData: RegisterData,
   ): Promise<ApiResponse<{ user: User; token: string }>> {
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const response = await fetch(`${this.baseUrl}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(userData),
+      });
 
-      const newUser: User = {
-        id: "user_" + Date.now(),
-        email: userData.email,
-        username: userData.username,
-        bio: userData.bio || undefined,
-        avatarUrl: undefined,
-        createdAt: new Date(),
-        isPublic: true,
-        totalMeditationMinutes: 0,
-        emailVerified: true,
-        lastActive: new Date(),
-        qrCode: "qr_" + Date.now()
-      };
+      const data = await response.json();
 
-      this.users.set(newUser.id, newUser);
-      this.currentUserId = newUser.id;
-      localStorage.setItem("currentUserId", newUser.id);
-      localStorage.setItem("auth_token", "token_" + newUser.id);
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.message || "Registration failed",
+        };
+      }
+
+      // Store JWT token
+      if (data.token) {
+        localStorage.setItem("auth_token", data.token);
+      }
 
       return {
         success: true,
         data: {
-          user: newUser,
-          token: "token_" + newUser.id,
+          user: data.user,
+          token: data.token,
         },
       };
     } catch (error) {
       return {
         success: false,
-        error: "Registration failed",
+        error: error instanceof Error ? error.message : "Network error",
+      };
+    }
+  }
+
+  async logout(): Promise<ApiResponse> {
+    try {
+      const token = this.getToken();
+
+      if (token) {
+        await fetch(`${this.baseUrl}/auth/logout`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+        });
+      }
+
+      // Clear local storage
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("user_data");
+
+      return {
+        success: true,
+        message: "Logged out successfully",
+      };
+    } catch (error) {
+      // Clear local storage even if request fails
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("user_data");
+
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Logout failed",
       };
     }
   }
 
   async getCurrentUser(): Promise<ApiResponse<User>> {
     try {
-      const token = localStorage.getItem("auth_token");
-      const userId = localStorage.getItem("currentUserId");
+      const token = this.getToken();
 
-      if (!token || !userId || !this.users.has(userId)) {
+      if (!token) {
         return {
           success: false,
-          error: "No authenticated user",
+          error: "No authentication token found",
         };
       }
 
-      const user = this.users.get(userId)!;
-      this.currentUserId = userId;
+      const response = await fetch(`${this.baseUrl}/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Invalid token, clear storage
+        if (response.status === 401) {
+          this.clearAuth();
+        }
+
+        return {
+          success: false,
+          error: data.message || "Failed to get user data",
+        };
+      }
 
       return {
         success: true,
-        data: user,
+        data: data.user,
       };
     } catch (error) {
       return {
         success: false,
-        error: "Failed to get current user",
+        error: error instanceof Error ? error.message : "Network error",
       };
     }
   }
 
-  async logout(): Promise<ApiResponse<void>> {
+  async verifyEmail(token: string): Promise<ApiResponse> {
     try {
-      this.currentUserId = null;
-      localStorage.removeItem("currentUserId");
-      localStorage.removeItem("auth_token");
+      const response = await fetch(`${this.baseUrl}/auth/verify-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      const data = await response.json();
 
       return {
-        success: true,
-        data: undefined,
+        success: response.ok,
+        message: data.message,
+        error: response.ok ? undefined : data.message,
       };
     } catch (error) {
       return {
         success: false,
-        error: "Logout failed",
+        error: error instanceof Error ? error.message : "Network error",
+      };
+    }
+  }
+
+  async requestPasswordReset(email: string): Promise<ApiResponse> {
+    try {
+      const response = await fetch(`${this.baseUrl}/auth/forgot-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      return {
+        success: response.ok,
+        message: data.message,
+        error: response.ok ? undefined : data.message,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Network error",
+      };
+    }
+  }
+
+  async resetPassword(
+    token: string,
+    newPassword: string,
+  ): Promise<ApiResponse> {
+    try {
+      const response = await fetch(`${this.baseUrl}/auth/reset-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token, newPassword }),
+      });
+
+      const data = await response.json();
+
+      return {
+        success: response.ok,
+        message: data.message,
+        error: response.ok ? undefined : data.message,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Network error",
       };
     }
   }
 
   async updateProfile(updates: Partial<User>): Promise<ApiResponse<User>> {
     try {
-      if (!this.currentUserId || !this.users.has(this.currentUserId)) {
+      const token = this.getToken();
+
+      if (!token) {
         return {
           success: false,
-          error: "User not authenticated",
+          error: "No authentication token found",
         };
       }
 
-      const currentUser = this.users.get(this.currentUserId)!;
-      const updatedUser = { ...currentUser, ...updates };
-      this.users.set(this.currentUserId, updatedUser);
+      const response = await fetch(`${this.baseUrl}/auth/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+        body: JSON.stringify(updates),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.message || "Profile update failed",
+        };
+      }
 
       return {
         success: true,
-        data: updatedUser,
+        data: data.user,
       };
     } catch (error) {
       return {
         success: false,
-        error: "Profile update failed",
+        error: error instanceof Error ? error.message : "Network error",
       };
     }
   }
 
-  // Mock methods for other features  
-  async verifyEmail(_token: string): Promise<ApiResponse<void>> {
-    return { success: true, data: undefined };
+  async uploadAvatar(file: File): Promise<ApiResponse<{ avatarUrl: string }>> {
+    try {
+      const token = this.getToken();
+
+      if (!token) {
+        return {
+          success: false,
+          error: "No authentication token found",
+        };
+      }
+
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      const response = await fetch(`${this.baseUrl}/auth/avatar`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.message || "Avatar upload failed",
+        };
+      }
+
+      return {
+        success: true,
+        data: { avatarUrl: data.avatarUrl },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Network error",
+      };
+    }
   }
 
-  async resetPassword(_email: string): Promise<ApiResponse<void>> {
-    return { success: true, data: undefined };
-  }
+  async deleteAccount(): Promise<ApiResponse> {
+    try {
+      const token = this.getToken();
 
-  async changePassword(_currentPassword: string, _newPassword: string): Promise<ApiResponse<void>> {
-    return { success: true, data: undefined };
-  }
+      if (!token) {
+        return {
+          success: false,
+          error: "No authentication token found",
+        };
+      }
 
-  // Additional methods needed by API service
-  async authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
-    const token = localStorage.getItem("auth_token");
-    const headers = {
-      ...options.headers,
-      "Authorization": token ? `Bearer ${token}` : "",
-      "Content-Type": "application/json"
-    };
+      const response = await fetch(`${this.baseUrl}/auth/delete-account`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
 
-    return fetch(url, { ...options, headers });
-  }
+      const data = await response.json();
 
-  getAuthHeaders(): Record<string, string> {
-    const token = localStorage.getItem("auth_token");
-    return {
-      "Authorization": token ? `Bearer ${token}` : "",
-      "Content-Type": "application/json"
-    };
+      if (response.ok) {
+        this.clearAuth();
+      }
+
+      return {
+        success: response.ok,
+        message: data.message,
+        error: response.ok ? undefined : data.message,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Network error",
+      };
+    }
   }
 
   getToken(): string | null {
     return localStorage.getItem("auth_token");
   }
 
+  isAuthenticated(): boolean {
+    const token = this.getToken();
+    if (!token) return false;
+
+    try {
+      // Basic JWT token validation (check if it's not expired)
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.exp > Date.now() / 1000;
+    } catch {
+      return false;
+    }
+  }
+
+  clearAuth(): void {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("user_data");
+  }
+
+  // Guest session functionality
+  async startGuestSession(): Promise<ApiResponse<{ sessionId: string }>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/auth/guest`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.message || "Failed to start guest session",
+        };
+      }
+
+      // Store guest session ID
+      localStorage.setItem("guest_session", data.sessionId);
+
+      return {
+        success: true,
+        data: { sessionId: data.sessionId },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Network error",
+      };
+    }
+  }
+
   getGuestSessionId(): string | null {
-    return localStorage.getItem("guest_session_id");
+    return localStorage.getItem("guest_session");
+  }
+
+  isGuestSession(): boolean {
+    return !!this.getGuestSessionId() && !this.isAuthenticated();
+  }
+
+  clearGuestSession(): void {
+    localStorage.removeItem("guest_session");
+  }
+
+  // Utility methods for API requests
+  getAuthHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    const token = this.getToken();
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    return headers;
+  }
+
+  async authenticatedFetch(
+    url: string,
+    options: RequestInit = {},
+  ): Promise<Response> {
+    const headers = this.getAuthHeaders();
+
+    return fetch(url, {
+      ...options,
+      headers: {
+        ...headers,
+        ...options.headers,
+      },
+      credentials: "include",
+    });
   }
 }
 
-export const authService = new MockAuthService();
+export const authService = new AuthService();

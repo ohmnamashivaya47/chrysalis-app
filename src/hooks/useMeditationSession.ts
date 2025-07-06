@@ -56,21 +56,13 @@ export function useMeditationSession() {
     async (settings: MeditationSettings): Promise<boolean> => {
       try {
         setError(null);
-        const response = await meditationSessionService.startSession(settings.type, settings.duration);
+        const session = await meditationSessionService.startSession(settings);
 
-        if (response.success) {
-          const session = meditationSessionService.getCurrentSession();
-          setCurrentSession(session);
-          setIsActive(true);
-          setIsPaused(false);
-          if (session) {
-            setProgress(session.progress);
-          }
-          return true;
-        } else {
-          setError(response.error || "Failed to start session");
-          return false;
-        }
+        setCurrentSession(session);
+        setIsActive(true);
+        setIsPaused(false);
+        setProgress(session.progress);
+        return true;
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : "Failed to start session";
@@ -84,7 +76,7 @@ export function useMeditationSession() {
   const pauseSession = useCallback(() => {
     try {
       if (currentSession) {
-        meditationSessionService.pauseSession(currentSession.id);
+        meditationSessionService.pauseSession();
         setIsActive(false);
         setIsPaused(true);
       }

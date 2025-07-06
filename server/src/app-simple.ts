@@ -76,7 +76,7 @@ app.use('*', (req, res) => {
 });
 
 // Error handling middleware
-app.use((err: any, req: any, res: any, next: any) => {
+app.use((err: Error, req: express.Request, res: express.Response) => {
   console.error(err.stack);
   res.status(500).json({
     success: false,

@@ -2,20 +2,12 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { authenticateToken } from '../middleware/auth';
+import { AuthRequest, authenticateToken } from '../middleware/auth';
 import { asyncHandler } from '../middleware/errorHandler';
 import { PrismaClient } from '@prisma/client';
 
 const router = Router();
 const prisma = new PrismaClient();
-
-interface AuthenticatedRequest extends Express.Request {
-  user?: {
-    id: string;
-    email: string;
-    username: string;
-  };
-}
 
 // Ensure upload directories exist
 const uploadDir = path.join(process.cwd(), 'uploads');
@@ -33,7 +25,7 @@ const avatar_urlStorage = multer.diskStorage({
     cb(null, avatar_urlDir);
   },
   filename: (req, file, cb) => {
-    const userId = (req as AuthenticatedRequest).user?.id || 'anonymous';
+    const userId = (req as AuthRequest).user?.id || 'anonymous';
     const extension = path.extname(file.originalname);
     const filename = `${userId}-${Date.now()}${extension}`;
     cb(null, filename);
@@ -41,7 +33,7 @@ const avatar_urlStorage = multer.diskStorage({
 });
 
 // File filter for images
-const imageFilter = (req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const imageFilter: multer.Options['fileFilter'] = (req, file, cb) => {
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
   } else {
@@ -71,7 +63,7 @@ router.post('/profile-picture', authenticateToken, (req, res, next) => {
     next();
   });
 }, asyncHandler(async (req, res) => {
-  const userId = (req as AuthenticatedRequest).user!.id;
+  const userId = (req as AuthRequest).user!.id;
   const file = req.file;
 
   if (!file) {

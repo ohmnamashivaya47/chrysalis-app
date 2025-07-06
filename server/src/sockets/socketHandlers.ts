@@ -178,10 +178,13 @@ export const setupSocketHandlers = (io: SocketIOServer) => {
 
         if (user) {
           const sessionData = JSON.parse(completedSession.session_data as string || '{}');
-          const totalMeditationTime = user.meditation_sessions.reduce(
-            (sum: number, session: any) => sum + (sessionData.actualDuration || session.duration_minutes), 
-            0
-          );
+          
+          // Calculate total meditation time
+          let totalMeditationTime = 0;
+          for (const session of user.meditation_sessions) {
+            const data = JSON.parse(session.session_data as string || '{}');
+            totalMeditationTime += data.actualDuration || session.duration_minutes;
+          }
 
           await prisma.user.update({
             where: { id: socket.userId! },
@@ -377,16 +380,31 @@ export const setupSocketHandlers = (io: SocketIOServer) => {
         take: 10
       });
 
-      const weeklyProcessed = weeklyLeaderboard.map((user: any) => ({
+      interface LeaderboardUser {
+        id: string;
+        username: string;
+        avatar_url: string | null;
+        meditation_sessions: { duration_minutes: number }[];
+      }
+
+      interface ProcessedUser {
+        id: string;
+        username: string;
+        avatar_url: string | null;
+        totalTime: number;
+        sessionCount: number;
+      }
+
+      const weeklyProcessed: ProcessedUser[] = weeklyLeaderboard.map((user: LeaderboardUser) => ({
         id: user.id,
         username: user.username,
         avatar_url: user.avatar_url,
         totalTime: user.meditation_sessions.reduce(
-          (sum: number, session: any) => sum + session.duration_minutes, 
+          (sum: number, session: { duration_minutes: number }) => sum + session.duration_minutes, 
           0
         ),
         sessionCount: user.meditation_sessions.length
-      })).sort((a: any, b: any) => b.totalTime - a.totalTime);
+      })).sort((a: ProcessedUser, b: ProcessedUser) => b.totalTime - a.totalTime);
 
       io.to('leaderboard:week').emit('leaderboard:weekly-update', weeklyProcessed);
 

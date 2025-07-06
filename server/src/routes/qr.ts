@@ -43,7 +43,7 @@ interface QRParseResult {
 
 // Generate QR code for user profile
 router.post('/generate-profile', authenticateToken, asyncHandler(async (req, res) => {
-  const userId = (req as any).user!.id;
+  const userId = (req as AuthRequest).user!.id;
   
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -81,7 +81,7 @@ router.post('/generate-profile', authenticateToken, asyncHandler(async (req, res
 // Generate QR code for meditation session sharing
 router.post('/generate-session', authenticateToken, asyncHandler(async (req, res) => {
   const { sessionId } = req.body;
-  const userId = (req as any).user!.id;
+  const userId = (req as AuthRequest).user!.id;
 
   if (!sessionId) {
     return res.status(400).json({ error: 'Session ID is required' });

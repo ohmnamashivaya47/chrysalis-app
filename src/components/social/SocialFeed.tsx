@@ -17,10 +17,8 @@ export const SocialFeed: React.FC<SocialFeedProps> = ({ className }) => {
   const loadFeed = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await socialFeedService.getFeed("page=1&limit=10");
-      if (response.success && response.data) {
-        setPosts(response.data);
-      }
+      const response = await socialFeedService.getFeed({ page: 1, limit: 10 });
+      setPosts(response.items);
     } catch (error) {
       console.error("Failed to load feed:", error);
     } finally {

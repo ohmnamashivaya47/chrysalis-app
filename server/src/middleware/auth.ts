@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-interface AuthRequest extends Request {
+export interface AuthRequest extends Request {
   user?: {
     id: string;
     email: string;
@@ -115,10 +115,8 @@ export const optionalAuth = async (
     }
 
     next();
-  } catch (error) {
+  } catch {
     // If token is invalid, continue without authentication
     next();
   }
 };
-
-export { AuthRequest };

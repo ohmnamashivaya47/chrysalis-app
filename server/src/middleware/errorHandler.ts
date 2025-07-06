@@ -8,8 +8,7 @@ interface CustomError extends Error {
 export const errorHandler = (
   err: CustomError,
   req: Request,
-  res: Response,
-  next: NextFunction
+  res: Response
 ): void => {
   console.error('Error occurred:', {
     message: err.message,

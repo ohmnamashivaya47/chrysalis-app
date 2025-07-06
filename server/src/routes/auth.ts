@@ -12,7 +12,7 @@ const prisma = new PrismaClient();
 // Register endpoint
 router.post('/register', 
   validateRequest(schemas.register),
-  asyncHandler(async (req, res, _next) => {
+  asyncHandler(async (req, res) => {
     const { email, password, username, bio } = req.body;
 
     // Check if user already exists

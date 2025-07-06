@@ -19,7 +19,6 @@ import uploadRoutes from './routes/upload';
 // Middleware imports
 import { authenticateToken } from './middleware/auth';
 import { errorHandler } from './middleware/errorHandler';
-import { validateRequest } from './middleware/validation';
 
 // Socket handlers
 import { setupSocketHandlers } from './sockets/socketHandlers';
@@ -37,7 +36,7 @@ const server = createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
     origin: process.env.NODE_ENV === 'production' 
-      ? ['https://your-app-name.netlify.app', 'https://chrysalis.app']
+      ? ['https://ohmnamashivaya47.netlify.app', 'https://chrysalis.app']
       : ['http://localhost:5173', 'http://localhost:3000'],
     methods: ['GET', 'POST'],
     credentials: true,
@@ -59,7 +58,7 @@ app.use(helmet({
 // CORS configuration
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://your-app-name.netlify.app', 'https://chrysalis.app']
+    ? ['https://ohmnamashivaya47.netlify.app', 'https://chrysalis.app']
     : ['http://localhost:5173', 'http://localhost:3000'],
   credentials: true,
 }));
