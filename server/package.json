@@ -5,8 +5,8 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "npm run db:generate && tsc && cp -r ../prisma dist/ && cp .env dist/",
-    "build:prod": "npm run db:generate && tsc && mkdir -p dist/prisma && cp ../prisma/schema.prisma dist/prisma/ && cp .env dist/",
+    "build": "npm run db:generate && tsc && cp -r ../prisma dist/",
+    "build:prod": "npm run db:generate && tsc && mkdir -p dist/prisma && cp ../prisma/schema.prisma dist/prisma/",
     "start": "cd dist && node server.js",
     "start:simple": "cd dist && node server-simple.js",
     "lint": "eslint .",
