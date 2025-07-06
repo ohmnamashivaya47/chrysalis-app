@@ -1,0 +1,15 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="64" fill="#6366f1"/>
+  <circle cx="256" cy="256" r="180" fill="none" stroke="white" stroke-width="8"/>
+  <circle cx="256" cy="256" r="140" fill="none" stroke="white" stroke-width="6" opacity="0.7"/>
+  <circle cx="256" cy="256" r="100" fill="none" stroke="white" stroke-width="4" opacity="0.5"/>
+  <circle cx="256" cy="256" r="60" fill="none" stroke="white" stroke-width="2" opacity="0.3"/>
+  <circle cx="256" cy="256" r="20" fill="white"/>
+  <path d="M256 140 L260 150 L270 146 L266 156 L276 152 L272 162 L282 158 L278 168 L288 164 L284 174 L294 170 L290 180" 
+        stroke="white" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M256 372 L260 362 L270 366 L266 356 L276 360 L272 350 L282 354 L278 344 L288 348 L284 338 L294 342 L290 332" 
+        stroke="white" stroke-width="2" fill="none" opacity="0.6"/>
+  <text x="256" y="420" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="32" font-weight="bold">
+    Chrysalis
+  </text>
+</svg>

@@ -1,0 +1,259 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                    String   @id @default(cuid())
+  email                 String   @unique
+  password_hash         String
+  username              String?  @unique
+  bio                   String?
+  avatar_url            String?
+  created_at            DateTime @default(now())
+  is_public             Boolean  @default(true)
+  total_meditation_minutes Int   @default(0)
+  email_verified        Boolean  @default(false)
+  email_verification_token String?
+  password_reset_token  String?
+  password_reset_expires DateTime?
+  last_active           DateTime @default(now())
+  qr_code               String   @unique @default(cuid())
+  
+  // Relationships
+  meditation_sessions   MeditationSession[]
+  posts                 Post[]
+  likes                 Like[]
+  comments              Comment[]
+  followers             UserRelationship[] @relation("Following")
+  following             UserRelationship[] @relation("Follower")
+  group_memberships     GroupMember[]
+  created_groups        LeaderboardGroup[]
+  achievements          UserAchievement[]
+  push_subscriptions    PushSubscription[]
+  reports_made          Report[] @relation("Reporter")
+  reports_received      Report[] @relation("Reported")
+  blocked_users         BlockedUser[] @relation("Blocker")
+  blocked_by_users      BlockedUser[] @relation("Blocked")
+  
+  @@map("users")
+}
+
+model MeditationSession {
+  id                String      @id @default(cuid())
+  user_id           String
+  meditation_type   String      // mindfulness, body-scan, loving-kindness, focused-attention
+  duration_minutes  Int
+  completed         Boolean     @default(false)
+  started_at        DateTime    @default(now())
+  completed_at      DateTime?
+  audio_settings    Json?       // Store audio configuration
+  notes             String?
+  mood_before       String?     // happy, stressed, neutral, etc.
+  mood_after        String?
+  session_data      Json?       // Store detailed session progress
+  
+  user              User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  
+  @@map("meditation_sessions")
+}
+
+model Post {
+  id                    String    @id @default(cuid())
+  user_id               String
+  content               String?
+  image_url             String?
+  audio_url             String?
+  is_guided_meditation  Boolean   @default(false)
+  created_at            DateTime  @default(now())
+  likes_count           Int       @default(0)
+  comments_count        Int       @default(0)
+  is_public             Boolean   @default(true)
+  
+  user                  User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  likes                 Like[]
+  comments              Comment[]
+  reports               Report[]
+  
+  @@map("posts")
+}
+
+model Like {
+  id         String   @id @default(cuid())
+  user_id    String
+  post_id    String
+  created_at DateTime @default(now())
+  
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  post       Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  
+  @@unique([user_id, post_id])
+  @@map("likes")
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  user_id    String
+  post_id    String
+  content    String
+  created_at DateTime @default(now())
+  
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  post       Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  reports    Report[]
+  
+  @@map("comments")
+}
+
+model UserRelationship {
+  id           String   @id @default(cuid())
+  follower_id  String
+  following_id String
+  created_at   DateTime @default(now())
+  
+  follower     User     @relation("Follower", fields: [follower_id], references: [id], onDelete: Cascade)
+  following    User     @relation("Following", fields: [following_id], references: [id], onDelete: Cascade)
+  
+  @@unique([follower_id, following_id])
+  @@map("user_relationships")
+}
+
+model LeaderboardGroup {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  creator_id  String
+  qr_code     String   @unique @default(cuid())
+  is_public   Boolean  @default(true)
+  max_members Int?     @default(50)
+  created_at  DateTime @default(now())
+  
+  creator     User           @relation(fields: [creator_id], references: [id], onDelete: Cascade)
+  members     GroupMember[]
+  
+  @@map("leaderboard_groups")
+}
+
+model GroupMember {
+  id         String   @id @default(cuid())
+  group_id   String
+  user_id    String
+  role       String   @default("member") // member, admin, moderator
+  joined_at  DateTime @default(now())
+  
+  group      LeaderboardGroup @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  user       User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  
+  @@unique([group_id, user_id])
+  @@map("group_members")
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  icon        String
+  criteria    Json     // Flexible criteria for earning the achievement
+  points      Int      @default(0)
+  tier        String   @default("bronze") // bronze, silver, gold, platinum
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  
+  user_achievements UserAchievement[]
+  
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id             String   @id @default(cuid())
+  user_id        String
+  achievement_id String
+  earned_at      DateTime @default(now())
+  progress       Json?    // Track progress towards achievement
+  
+  user           User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  achievement    Achievement @relation(fields: [achievement_id], references: [id], onDelete: Cascade)
+  
+  @@unique([user_id, achievement_id])
+  @@map("user_achievements")
+}
+
+model PushSubscription {
+  id           String   @id @default(cuid())
+  user_id      String
+  endpoint     String
+  p256dh_key   String
+  auth_key     String
+  user_agent   String?
+  created_at   DateTime @default(now())
+  is_active    Boolean  @default(true)
+  
+  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  
+  @@map("push_subscriptions")
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  reporter_id String
+  reported_id String   // User being reported
+  post_id     String?  // Optional: if reporting a post
+  comment_id  String?  // Optional: if reporting a comment
+  reason      String   // spam, inappropriate, harassment, etc.
+  description String?
+  status      String   @default("pending") // pending, reviewed, resolved, dismissed
+  created_at  DateTime @default(now())
+  resolved_at DateTime?
+  
+  reporter    User     @relation("Reporter", fields: [reporter_id], references: [id], onDelete: Cascade)
+  reported    User     @relation("Reported", fields: [reported_id], references: [id], onDelete: Cascade)
+  post        Post?    @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  comment     Comment? @relation(fields: [comment_id], references: [id], onDelete: Cascade)
+  
+  @@map("reports")
+}
+
+model BlockedUser {
+  id         String   @id @default(cuid())
+  blocker_id String
+  blocked_id String
+  created_at DateTime @default(now())
+  
+  blocker    User     @relation("Blocker", fields: [blocker_id], references: [id], onDelete: Cascade)
+  blocked    User     @relation("Blocked", fields: [blocked_id], references: [id], onDelete: Cascade)
+  
+  @@unique([blocker_id, blocked_id])
+  @@map("blocked_users")
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  user_id     String
+  type        String   // like, comment, follow, achievement, etc.
+  title       String
+  message     String
+  data        Json?    // Additional notification data
+  read        Boolean  @default(false)
+  created_at  DateTime @default(now())
+  
+  @@map("notifications")
+}
+
+model SessionData {
+  id          String   @id @default(cuid())
+  session_id  String   @unique
+  user_id     String?
+  data        Json
+  expires_at  DateTime
+  created_at  DateTime @default(now())
+  
+  @@map("session_data")
+}
