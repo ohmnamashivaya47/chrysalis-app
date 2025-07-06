@@ -18,6 +18,12 @@ dist-ssr
 server/.env
 server/.env.*
 
+# Environment files with real credentials
+.env.local
+.env.production
+server/.env.local
+server/.env.production
+
 # Build outputs
 server/dist/
 server/build/
@@ -35,6 +41,18 @@ server/uploads/
 *.njsproj
 *.sln
 *.sw?
+
+# Deployment and setup files
+*.sh
+*.yaml
+*.toml
+deploy-*
+setup-*
+verify-*
+
+# Documentation files (except README)
+*.md
+!README.md
 
 # Local Netlify folder
 .netlify
