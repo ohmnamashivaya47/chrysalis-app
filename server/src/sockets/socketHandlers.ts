@@ -348,9 +348,12 @@ export const setupSocketHandlers = (io: SocketIOServer) => {
     });
   });
 
-  // Periodic leaderboard updates
+  // Periodic leaderboard updates (every 5 minutes instead of 1 minute)
   setInterval(async () => {
     try {
+      // Check if database is connected before making queries
+      await prisma.$connect();
+      
       // Update weekly leaderboard
       const weeklyLeaderboard = await prisma.user.findMany({
         where: {
@@ -409,9 +412,17 @@ export const setupSocketHandlers = (io: SocketIOServer) => {
       io.to('leaderboard:week').emit('leaderboard:weekly-update', weeklyProcessed);
 
     } catch (error) {
-      console.error('Leaderboard update error:', error);
+      // Only log database connection errors, don't spam the logs
+      if (error instanceof Error && error.message.includes('database')) {
+        console.warn('Database temporarily unavailable for leaderboard update');
+      } else {
+        console.error('Leaderboard update error:', error);
+      }
+    } finally {
+      // Disconnect to prevent connection pool exhaustion
+      await prisma.$disconnect();
     }
-  }, 60000); // Update every minute
+  }, 300000); // Update every 5 minutes instead of 1 minute
 };
 
 export default setupSocketHandlers;
