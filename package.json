@@ -18,7 +18,7 @@
     "dev": "vite",
     "build": "cd server && npm install && npm run build",
     "start": "cd server && npm start",
-    "build:frontend": "tsc -b && vite build",
+    "build:frontend": "vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
