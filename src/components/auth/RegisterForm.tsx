@@ -80,7 +80,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
             Join Chrysalis
           </CardTitle>
           <CardDescription>
-            Begin your transformation through mindful practice
+            Begin your journey through mindful practice
           </CardDescription>
         </CardHeader>
 

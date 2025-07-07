@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import "./App.css";
 import { AuthGuard } from "./components/auth/AuthGuard";
 import HomePage from "./pages/HomePage";
 import AuthPage from "./pages/AuthPage";

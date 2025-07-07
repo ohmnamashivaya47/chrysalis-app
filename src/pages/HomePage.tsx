@@ -114,7 +114,7 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.8 }}
           >
             <Badge variant="secondary" className="mb-6">
-              🦋 Transform Your Mind
+              🦋 Master Your Mind
             </Badge>
 
             <h1 className="text-5xl md:text-7xl font-bold text-sage-900 mb-6 leading-tight">
@@ -125,7 +125,7 @@ const HomePage: React.FC = () => {
             </h1>
 
             <p className="text-xl text-sage-600 mb-8 max-w-2xl mx-auto">
-              Transform your mental wellbeing through guided meditation, social
+              Elevate your mental wellbeing through guided meditation, social
               connection, and mindful practice. Begin your journey of personal
               growth today.
             </p>
@@ -178,7 +178,7 @@ const HomePage: React.FC = () => {
             </h2>
             <p className="text-sage-600 max-w-2xl mx-auto">
               Chrysalis provides a complete ecosystem for meditation and
-              mindfulness, designed to support your transformation at every
+              mindfulness, designed to support your growth at every
               step.
             </p>
           </motion.div>
@@ -279,7 +279,7 @@ const HomePage: React.FC = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Ready to Transform Your Mind?
+                Ready to Master Your Mind?
               </h2>
               <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
                 Begin your meditation journey today with personalized sessions,

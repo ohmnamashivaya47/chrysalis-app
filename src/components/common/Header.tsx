@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
+import { Logo } from "../ui/Logo";
 import { useAuth } from "../../hooks/useAuth";
 import { cn } from "../../utils/cn";
 
@@ -60,14 +61,7 @@ const Header: React.FC<HeaderProps> = ({
             )}
 
             {/* Logo */}
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-deepTeal to-sage-500 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-sm">C</span>
-              </div>
-              <span className="font-bold text-xl text-sage-900 hidden sm:block">
-                Chrysalis
-              </span>
-            </div>
+            <Logo size="sm" className="cursor-pointer" />
 
             {title && (
               <div className="hidden md:block">

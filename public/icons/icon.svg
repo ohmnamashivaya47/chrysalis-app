@@ -1,15 +1,39 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" rx="64" fill="#6366f1"/>
-  <circle cx="256" cy="256" r="180" fill="none" stroke="white" stroke-width="8"/>
-  <circle cx="256" cy="256" r="140" fill="none" stroke="white" stroke-width="6" opacity="0.7"/>
-  <circle cx="256" cy="256" r="100" fill="none" stroke="white" stroke-width="4" opacity="0.5"/>
-  <circle cx="256" cy="256" r="60" fill="none" stroke="white" stroke-width="2" opacity="0.3"/>
-  <circle cx="256" cy="256" r="20" fill="white"/>
-  <path d="M256 140 L260 150 L270 146 L266 156 L276 152 L272 162 L282 158 L278 168 L288 164 L284 174 L294 170 L290 180" 
-        stroke="white" stroke-width="2" fill="none" opacity="0.6"/>
-  <path d="M256 372 L260 362 L270 366 L266 356 L276 360 L272 350 L282 354 L278 344 L288 348 L284 338 L294 342 L290 332" 
-        stroke="white" stroke-width="2" fill="none" opacity="0.6"/>
-  <text x="256" y="420" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="32" font-weight="bold">
+  <!-- Background -->
+  <rect width="512" height="512" rx="64" fill="#6B8E23"/>
+  
+  <!-- Butterfly silhouette representing growth and mindfulness -->
+  <g transform="translate(256, 200)">
+    <!-- Upper wings -->
+    <ellipse cx="-40" cy="-30" rx="45" ry="35" fill="white" opacity="0.9"/>
+    <ellipse cx="40" cy="-30" rx="45" ry="35" fill="white" opacity="0.9"/>
+    
+    <!-- Lower wings -->
+    <ellipse cx="-35" cy="15" rx="35" ry="25" fill="white" opacity="0.8"/>
+    <ellipse cx="35" cy="15" rx="35" ry="25" fill="white" opacity="0.8"/>
+    
+    <!-- Body -->
+    <ellipse cx="0" cy="-10" rx="4" ry="50" fill="white"/>
+    
+    <!-- Antennae -->
+    <path d="M-5 -45 Q-10 -55 -8 -60" stroke="white" stroke-width="2" fill="none"/>
+    <path d="M5 -45 Q10 -55 8 -60" stroke="white" stroke-width="2" fill="none"/>
+    
+    <!-- Wing details -->
+    <circle cx="-40" cy="-35" r="8" fill="#6B8E23" opacity="0.3"/>
+    <circle cx="40" cy="-35" r="8" fill="#6B8E23" opacity="0.3"/>
+  </g>
+  
+  <!-- Meditation ripples -->
+  <circle cx="256" cy="350" r="30" fill="none" stroke="white" stroke-width="2" opacity="0.6"/>
+  <circle cx="256" cy="350" r="50" fill="none" stroke="white" stroke-width="2" opacity="0.4"/>
+  <circle cx="256" cy="350" r="70" fill="none" stroke="white" stroke-width="2" opacity="0.2"/>
+  
+  <!-- Brand text -->
+  <text x="256" y="420" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="28" font-weight="600">
     Chrysalis
+  </text>
+  <text x="256" y="450" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="16" opacity="0.8">
+    Mind Mastery
   </text>
 </svg>

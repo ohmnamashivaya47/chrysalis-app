@@ -29,7 +29,7 @@ const AuthPage: React.FC = () => {
             Welcome to Chrysalis
           </h1>
           <p className="text-sage-600">
-            Transform your mind, one breath at a time
+            Master your mind, one breath at a time
           </p>
         </motion.div>
 
